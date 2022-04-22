@@ -1,1 +1,3 @@
 # Coursera
+
+Submitted assignments/projects
