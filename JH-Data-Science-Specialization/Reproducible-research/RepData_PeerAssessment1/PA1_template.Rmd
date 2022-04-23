@@ -1,0 +1,89 @@
+---
+title: "Reproducible Research: Peer Assessment 1"
+author: "Philip Wong"
+date: "February 12th, 2022"
+output: html_document
+keep_md: true
+---
+
+## Loading and preprocessing the data
+```{r, echo=TRUE}
+# import packages
+library(tidyverse)
+library(lattice)
+
+# import data
+df <- read_csv("activity.csv")
+```
+
+## What is mean total number of steps taken per day?
+```{r, echo=TRUE}
+# Make a histogram of the total number of steps taken each day
+total_steps <- aggregate(steps ~ date, data=df, sum, na.rm = TRUE)
+png("output/plot1.png", width = 480, height = 480)
+hist(total_steps$steps, main = "Histogram: Total # of Steps Completed Each Day")
+dev.off()
+
+# Calculate and report the mean and median total number of steps taken per day
+mean(total_steps$steps)
+median(total_steps$steps)
+```
+
+## What is the average daily activity pattern?
+```{r, echo=TRUE}
+# Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+avg_stepsInterval <- aggregate(steps ~ interval, data = df, mean, na.rm = TRUE)
+png("output/plot2.png", width = 480, height = 480)
+plot(steps ~ interval, data=avg_stepsInterval, type="l")
+dev.off()
+
+# Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+print(avg_stepsInterval %>% arrange(desc(steps)) %>% head(1) %>% select(interval))
+```
+
+## Imputing missing values
+```{r, echo=TRUE}
+# Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
+colSums(is.na(df))
+
+# Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
+print("Methodology: I will apply an average per each 5-minute interval as replacements for missing values.")
+
+# Create a new dataset that is equal to the original dataset but with the missing data filled in.
+new_df <- merge(df, avg_stepsInterval, by="interval", suffixes=c("",".y"))
+Null_values <- is.na(new_df$steps)
+new_df$steps[Null_values] <- new_df$steps.y[Null_values]
+new_df <- new_df %>% select(1:3)
+
+# Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+total_steps_by_day <- aggregate(steps ~ date, data=new_df, sum)
+png("output/plot3.png", width = 480, height = 480)
+hist(total_steps_by_day$steps, main = "Histogram: Total # of Steps Completed Each Day, Fixed Null Values")
+dev.off()
+
+# Calculate and report the mean and median total number of steps taken per day
+mean(total_steps_by_day$steps)
+median(total_steps_by_day$steps)
+```
+
+## Are there differences in activity patterns between weekdays and weekends?
+```{r, echo=TRUE}
+total_steps_by_day <- total_steps_by_day %>% 
+  mutate(
+    Week_day = weekdays(date),
+    Weekend_Weekday = case_when(
+     Week_day %in% c('Saturday', 'Sunday') ~ 'Weekend',
+     TRUE ~ 'Weekday'
+    )
+  )
+
+# average & median steps on weekend
+mean(total_steps_by_day$steps[total_steps_by_day$Weekend_Weekday == "Weekend"])
+median(total_steps_by_day$steps[total_steps_by_day$Weekend_Weekday == "Weekend"])
+
+# average % median steps on weekdays     
+mean(total_steps_by_day$steps[total_steps_by_day$Weekend_Weekday == "Weekday"])
+median(total_steps_by_day$steps[total_steps_by_day$Weekend_Weekday == "Weekday"])
+
+```
+
