@@ -1,0 +1,104 @@
+---
+title: "National Storm Analysis - Most Harmful Events Impacting Population/Economic Health"
+output: html_document
+author: "Author: Philip Wong"
+date: 'Date: `r Sys.Date()`'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Project Requirements & Synopsis:
+"The basic goal of this assignment is to explore the NOAA Storm Database and answer some basic questions about severe weather events. You must use the database to answer the questions below and show the code for your entire analysis. Your analysis can consist of tables, figures, or other summaries. You may use any R package you want to support your analysis."
+
+This report is structured based on the following topics: <br>
+  - Data Processing (importing data) <br>
+  - Data Exploration (managing null values) <br>
+  - Data Analysis [1] Which types of events are most harmful with respect to population health? <br> 
+  - Data Analysis [2] Which types of events have the greatest economic consequences? <br>
+ 
+### Data Processesing & Exploration
+
+```{r, echo = TRUE}
+# import libraries
+library(tidyverse)
+library(knitr)
+library(scales)
+
+# import data
+df <- read_csv("input/repdata_data_StormData.csv")
+```
+
+```{r, echo = TRUE}
+# How many duplicate values for each variable?
+colSums(is.na(df))
+```
+
+### Data Analysis
+
+##### Across the United States, which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health?
+```{r, echo = TRUE}
+# population health - based on number of fatalities
+df %>% group_by(EVTYPE) %>% 
+   summarise(Total_Deaths = sum(FATALITIES)) %>% 
+   ungroup() %>% 
+   arrange(desc(Total_Deaths)) %>% 
+   head(10) %>% 
+   ggplot(aes(x = reorder(EVTYPE, Total_Deaths), y = Total_Deaths)) +
+   geom_bar(stat = 'identity', color = 'black', fill = 'blue') +
+   coord_flip() + 
+   labs(x = "Events", y = "Number of Death Cases") +
+   theme_bw() +
+   scale_y_continuous(expand = expansion(mult = c(0, .1))) +
+   geom_text(aes(label = Total_Deaths), position = position_stack(vjust = 0.5), size = 5, color = 'white')
+```
+<br> Result: It appears that tornados are the most harmful with respect to population health (# of death cases).
+
+##### Across the United States, which types of events have the greatest economic consequences?
+
+```{r, echo = TRUE}
+# replace any null values to 0
+df$PROPDMG[is.na(df$PROPDMG)] <- 0
+df$PROPDMGEXP[is.na(df$PROPDMGEXP)] <- 0
+df$CROPDMG[is.na(df$CROPDMG)] <- 0
+df$CROPDMGEXP[is.na(df$CROPDMGEXP)] <- 0
+
+# convert property & cropt damage into numbers based on the following aggregations = H = 10^2, K=10^3, M =10^6, and B=10^9. 
+df2 <- df %>% 
+  mutate(
+    PROP_DAMAGE = case_when(
+      PROPDMGEXP == 'H' ~ PROPDMG * 10^2,
+      PROPDMGEXP == 'K' ~ PROPDMG * 10^3,
+      PROPDMGEXP == 'M' ~ PROPDMG * 10^6,
+      PROPDMGEXP == 'B' ~ PROPDMG * 10^9,
+      TRUE ~ 0
+    )
+  ) %>% 
+  mutate(
+    CROP_DAMAGE = case_when(
+      CROPDMGEXP == 'H' ~ CROPDMG * 10^2,
+      CROPDMGEXP == 'K' ~ CROPDMG * 10^3,
+      CROPDMGEXP == 'M' ~ CROPDMG * 10^6,
+      CROPDMGEXP == 'B' ~ CROPDMG * 10^9,
+      TRUE ~ 0
+    )
+  )
+
+# aggregate the newly added variables - creating a single variable
+df2 %>% 
+  mutate(Total_Damage = PROP_DAMAGE + CROP_DAMAGE) %>% 
+  group_by(EVTYPE) %>% 
+  summarise(Economic_Damage = round(sum(Total_Damage)/10^9,1)) %>% 
+  ungroup() %>% 
+  arrange(desc(Economic_Damage)) %>% 
+  head(20) %>% 
+  ggplot(aes(x = reorder(EVTYPE, Economic_Damage), y = Economic_Damage)) +
+  geom_bar(stat = 'identity', color = 'black', fill = 'blue') +
+  coord_flip() + 
+  labs(x = "Events", y = "Economic Damage (USD) - 10^9") +
+  theme_bw() +
+  scale_y_continuous(expand = expansion(mult = c(0, .1))) +
+  geom_text(aes(label = dollar_format()(Economic_Damage)), position = position_stack(vjust = 0.5), size = 4.5, color = 'white')
+```
+<br> Result: Floods causes the greatest economic damage/consequence.
