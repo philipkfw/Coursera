@@ -1,9 +1,9 @@
 # Statistical Inference Course - Week 4 Project
 
 ## Part 1: A simulation exercise
-In this project you will investigate the exponential distribution in R and compare it with the Central Limit Theorem. The exponential distribution can be simulated in R with rexp(n, lambda) where lambda is the rate parameter. The mean of exponential distribution is 1/lambda and the standard deviation is also 1/lambda. **Set lambda = 0.2 for all of the simulations.** You will investigate the distribution of averages of 40 exponentials. Note that you will need to do a thousand simulations.  
+In this project we will investigate the exponential distribution in R and compare it with the Central Limit Theorem. The exponential distribution can be simulated in R with rexp(n, lambda) where lambda is the rate parameter. The mean of exponential distribution is 1/lambda and the standard deviation is also 1/lambda. **Set lambda = 0.2 for all of the simulations.** We will investigate the distribution of averages of 40 exponentials. Note that it will require a thousand simulations.  
 
-Illustrate via simulation and associated explanatory text the properties of the distribution of the mean of 40 exponentials.  You should  
+Illustrate via simulation and associated explanatory text the properties of the distribution of the mean of 40 exponentials. I will;  
 1. Show the sample mean and compare it to the theoretical mean of the distribution.  
 2. Show how variable the sample is (via variance) and compare it to the theoretical variance of the distribution.  
 3. Show that the distribution is approximately normal.  
@@ -26,12 +26,12 @@ hist(mns)
 
 This distribution looks far more Gaussian than the original uniform distribution!  
 
-This exercise is asking you to use your knowledge of the theory given in class to relate the two distributions.    
-Confused?  Try re-watching video lecture 07 for a starter on how to complete this project.  
+This exercise is asking us to use our knowledge of the theory given in class to relate the two distributions.    
+Confused? Try re-watching video lecture 07 for a starter on how to complete this project.  
 
 ### Sample Project Report Structure
 
-Of course, there are multiple ways one could structure a report to address the requirements above.  However, the more clearly you pose and answer each question, the easier it will be for reviewers to clearly identify and evaluate your work.  
+Of course, there are multiple ways one could structure a report to address the requirements above.  However, the more clearly we pose and answer each question, the easier it will be for reviewers to clearly identify and evaluate your work.  
 
 A sample set of headings that could be used to guide the creation of your report might be:
 
