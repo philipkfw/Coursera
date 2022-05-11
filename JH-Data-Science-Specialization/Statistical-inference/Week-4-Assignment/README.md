@@ -1,4 +1,4 @@
-# Statistical Inference Course - Week 4 Project
+# Statistical Inference Course - Week 4 Assignment
 
 ## Part 1: A simulation exercise
 In this project we will investigate the exponential distribution in R and compare it with the Central Limit Theorem. The exponential distribution can be simulated in R with rexp(n, lambda) where lambda is the rate parameter. The mean of exponential distribution is 1/lambda and the standard deviation is also 1/lambda. **Set lambda = 0.2 for all of the simulations.** We will investigate the distribution of averages of 40 exponentials. Note that it will require a thousand simulations.  
