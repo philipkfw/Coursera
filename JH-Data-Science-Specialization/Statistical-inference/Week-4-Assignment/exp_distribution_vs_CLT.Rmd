@@ -1,0 +1,71 @@
+---
+title: "Investigate the exponential distribution in R and compare it with the CLT"
+author: "Philip Wong"
+date: "29/05/2022"
+output: pdf_document
+---
+
+## Overview
+In this project we will investigate the exponential distribution in R and compare it with the Central Limit Theorem. The exponential distribution can be simulated in R with rexp(n, lambda) where lambda is the rate parameter. The mean of exponential distribution is 1/lambda and the standard deviation is also 1/lambda. Set lambda = 0.2 for all of the simulations. We will investigate the distribution of averages of 40 exponentials. Note that it will require 1000 simulations.
+
+## Simulations
+Set the simulation variables lambda, exponentials, and seed.
+```{r}
+ECHO=TRUE
+set.seed(1337)
+lambda = 0.2
+exponentials = 40
+```
+
+Run Simulations with variables
+```{r}
+simulation_Means = NULL
+for (i in 1 : 1000) simulation_Means = c(simulation_Means, mean(rexp(exponentials, lambda)))
+```
+
+## Sample Mean versus Theoretical Mean
+#### Sample Mean
+```{r}
+mean(simulation_Means)
+```
+
+#### Theoretical Mean
+```{r}
+lambda^-1
+```
+
+#### Comparison
+```{r}
+abs(mean(simulation_Means)-lambda^-1)
+```
+
+## Sample Variance versus Theoretical Variance
+#### Sample Variance
+```{r}
+var(simulation_Means)
+```
+
+#### Theoretical Variance
+```{r}
+(lambda * sqrt(exponentials))^-2
+```
+
+#### Comparison
+```{r}
+abs(var(simulation_Means)-(lambda * sqrt(exponentials))^-2)
+```
+
+
+## Distribution
+```{r}
+library(ggplot2)
+ggplot(data.frame(y=simulation_Means), aes(x=y)) + 
+  geom_histogram(aes(y=..density..), binwidth=0.2, fill="dark green", 
+                 color="black") +
+  stat_function(fun=dnorm, arg=list(mean=lambda^-1, 
+                                    sd=(lambda*sqrt(exponentials))^-1), 
+                size=2) +
+  labs(
+    title = "Plot of the Simulations", 
+    x = "Simulation Mean")
+```
